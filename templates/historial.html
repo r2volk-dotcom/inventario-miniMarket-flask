@@ -1,0 +1,58 @@
+{% extends "base.html" %} {% block content %}
+
+<div
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  "
+>
+  <h2>Historial de Movimientos (Kardex)</h2>
+  <a href="/" class="btn">Volver al Inventario</a>
+</div>
+
+<section class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Fecha/Hora</th>
+        <th>Tipo</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Usuario</th>
+        <th>Motivo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in movimientos %}
+      <tr>
+        <td>{{ m['fecha'].replace('T', ' ') }}</td>
+
+        <td>
+          {% if m['tipo'] == 'Entrada' %}
+          <span style="color: var(--success); font-weight: bold"
+            >+ Entrada</span
+          >
+          {% else %}
+          <span style="color: var(--danger); font-weight: bold">- Salida</span>
+          {% endif %}
+        </td>
+
+        <td style="font-weight: 600">{{ m['producto'] }}</td>
+        <td>{{ m['cantidad'] }}</td>
+        <td>{{ m['usuario'] }}</td>
+        <td style="color: #666">{{ m['motivo'] }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 20px">
+          No hay movimientos registrados aún.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% endblock %}

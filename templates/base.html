@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventario - Minimarket Don José</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <h1>Minimarket Don José</h1>
+
+        <div class="actions">
+          <div class="btn-group">
+            <button
+              id="btn-add-entry"
+              class="btn success"
+              title="Registrar Compra"
+            >
+              + Entrada
+            </button>
+            <button
+              id="btn-add-output"
+              class="btn danger"
+              title="Registrar Venta"
+            >
+              - Salida
+            </button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="btn-group">
+            <button id="btn-add-product" class="btn primary">+ Producto</button>
+            <button id="btn-add-provider" class="btn">Proveedores</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="btn-group">
+            <a href="/historial" class="btn"> Historial </a>
+            <button id="btn-refresh" class="btn" title="Actualizar datos">
+              ↻
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">{% block content %}{% endblock %}</main>
+
+    <div id="modal-root"></div>
+  </body>
+</html>

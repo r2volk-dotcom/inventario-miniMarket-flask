@@ -1,0 +1,85 @@
+{% extends "base.html" %} {% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<section class="dashboard-grid">
+  <div class="stats-column">
+    <div class="card blue">
+      <h3>Total Productos</h3>
+      <p id="dash-total" class="stat-value">0</p>
+    </div>
+
+    <div class="card red">
+      <h3>Alertas Stock Bajo</h3>
+      <p id="dash-alertas" class="stat-value text-danger">0</p>
+    </div>
+
+    <div class="card orange">
+      <h3>Lotes por Vencer (30d)</h3>
+      <p id="dash-vencimiento" class="stat-value text-warning">0</p>
+    </div>
+
+    <div class="card green">
+      <h3>Valor Inventario (S/)</h3>
+      <p id="dash-valor" class="stat-value text-success">0.00</p>
+    </div>
+  </div>
+
+  <div class="chart-column">
+    <div class="card">
+      <h3>Distribución por Categoría</h3>
+      <div class="chart-container">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="controls">
+  <label
+    >Buscar:
+    <input
+      id="search"
+      type="text"
+      placeholder="Código, nombre o categoría..."
+    />
+  </label>
+  <button id="search-btn" class="btn">Buscar</button>
+</section>
+
+<section class="table-wrap">
+  <table class="table" id="productos-table">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Precio Venta</th>
+        <th>Stock</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in productos %}
+      <tr data-id="{{ p['id'] }}">
+        <td>{{ p['codigo'] }}</td>
+        <td>{{ p['nombre'] }}</td>
+        <td><span class="badge">{{ p['categoria'] }}</span></td>
+        <td>S/ {{ "%.2f"|format(p['precio_venta']) }}</td>
+        <td
+          class="stock {% if p['stock'] <= 0 %}agotado{% elif p['stock'] <= p['stock_min'] %}critico{% else %}normal{% endif %}"
+        >
+          {{ p['stock'] }}
+        </td>
+        <td style="color: #888; font-size: 0.9em">{{ p['descripcion'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="info">
+  <p id="info-count">Listados: {{ productos|length }}</p>
+</section>
+
+{% endblock %}

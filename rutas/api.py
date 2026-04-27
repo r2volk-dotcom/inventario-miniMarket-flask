@@ -1,4 +1,6 @@
 import datetime
+# Blueprint = para orgaizar el proyecto en partes
+# Jsonify = convierte datos de python(diccionarios, listas) a JSON para apis
 from flask import Blueprint, jsonify
 from models.db import get_db
 
@@ -26,7 +28,6 @@ def api_products():
 
     # jsonify convierte la lista de diccionarios en JSON:
     return jsonify(data)
-
 
 
 # --- LISTA DE PROVEEDORES ---
@@ -65,40 +66,33 @@ def api_dashboard():
     if valor_total is None:
         valor_total = 0
 
+    # Fechas para filtrar los lotes a vencer (en los proximos 30 días)
+    # .isoformat() convierte datetime a string: "2025-05-20"
+    hoy    = datetime.date.today().isoformat() #fecha de hoy
+    limite = (datetime.date.today() + datetime.timedelta(days=30)).isoformat() #intervalo de 30 dias
 
 
-
-
-
-    # Fechas para filtrar lotes próximos a vencer (en los próximos 30 días)
-    hoy    = datetime.date.today().isoformat()
-    limite = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
-    # date.today() → fecha de hoy: 2025-04-20
-    # timedelta(days=30) → un intervalo de 30 días
-    # .isoformat() → convierte a string: "2025-05-20"
-
-    # ⚠️ NOTA: Esta query usa f-string en vez de ? (placeholder)
-    # Es aceptable porque las fechas las genera el SERVIDOR (no el usuario)
-    # Pero en general, siempre preferí usar ? para prevenir inyección SQL
-    # Versión segura sería: conn.execute("... WHERE vencimiento <= ? AND vencimiento >= ?", (limite, hoy))
+    # f-string seguro (fechas generadas internamente, no input de usuario)
+    # Cuenta cuantos registros hay en la tabla entradas cuyo vencimiento este entro hoy y 30dias
     por_vencer = conn.execute(
         f"SELECT COUNT(*) FROM entradas WHERE vencimiento <= '{limite}' AND vencimiento >= '{hoy}'"
     ).fetchone()[0]
 
-    # Datos para el gráfico de barras: cantidad de productos por categoría
+    # Datos para el gráfico de barras: devuelve (categoria, cantidad)
     chart_query = conn.execute(
         "SELECT categoria, COUNT(*) AS cantidad FROM productos GROUP BY categoria"
     ).fetchall()
-    # GROUP BY categoria → agrupa todas las filas que tengan la misma categoría
-    # COUNT(*) → cuenta cuántos productos hay en cada grupo
-    # Resultado ejemplo: [("Abarrotes", 10), ("Bebidas", 5), ("Lácteos", 3)]
 
+
+    # Cierra la conexion de la bd
     conn.close()
 
     # Separamos etiquetas y valores en dos listas paralelas para el gráfico
     labels = [row['categoria'] for row in chart_query]  # ["Abarrotes", "Bebidas", ...]
     values = [row['cantidad']  for row in chart_query]  # [10, 5, ...]
 
+    #jsonify lo convierte en json..
+    # El frontend lee este JSON con fetch("/api/dashboard") y lo usa para actualizar el dashboard
     return jsonify({
         "total":        total_productos,
         "alertas":      alertas_stock,
@@ -107,5 +101,3 @@ def api_dashboard():
         "chart_labels": labels,
         "chart_values": values
     })
-    # El frontend lee este JSON con fetch("/api/dashboard") y lo usa para
-    # actualizar los números del dashboard y renderizar el gráfico

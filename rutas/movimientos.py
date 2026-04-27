@@ -1,4 +1,8 @@
 import datetime
+# Blueprint = para orgaizar el proyecto en partes
+# render_template = para mostrar archivos HTML
+# request = contiene la informacion de la peticion que hace el usuario
+# Jsonify = convierte datos de python(diccionarios, listas) a JSON para apis
 from flask import Blueprint, render_template, request, jsonify
 from models.db import get_db
 
@@ -7,15 +11,16 @@ from models.db import get_db
 movimientos_bp = Blueprint("movimientos", __name__)
 
 
-# --- AGREGAR ENTRADA (COMPRA / INGRESO DE STOCK) ---
+# POST - agrega entrada (compra/ingreso stock)
 @movimientos_bp.route("/add_entry", methods=["POST"])
 def add_entry():
 
     # Leemos los datos del formulario
-    producto_id  = request.form.get("producto_id")
-    proveedor_id = request.form.get("proveedor_id")
-    cantidad     = request.form.get("cantidad")
-    vencimiento  = request.form.get("vencimiento")  # Puede venir vacío si no es perecedero
+    # request.form.get() lee los datos enviados en el formulario HTML
+    producto_id  = request.form.get("producto_id","") # (nombre del campo, valor por defecto)
+    proveedor_id = request.form.get("proveedor_id","")
+    cantidad     = request.form.get("cantidad","")
+    vencimiento  = request.form.get("vencimiento")
     usuario      = request.form.get("usuario", "").strip()
     motivo       = request.form.get("motivo", "").strip()
 
@@ -24,62 +29,55 @@ def add_entry():
         producto_id  = int(producto_id)
         proveedor_id = int(proveedor_id)
         cantidad     = int(cantidad)
-    except (TypeError, ValueError):
-        # TypeError si el valor es None; ValueError si es texto no numérico
+    except ValueError:
+        # ValueError si el valor es vacio("") o texto no numerico
         return jsonify({"ok": False, "msg": "Datos inválidos."}), 400
 
     if cantidad <= 0:
         return jsonify({"ok": False, "msg": "Cantidad debe ser mayor a 0."}), 400
 
-    # Si no se ingresó fecha de vencimiento, usamos una fecha muy lejana
-    # Esto representa productos que no tienen fecha de caducidad
+    # Si no se ingreso fecha de vencimiento, usamos una fecha muy lejana (productos sin fecha de caducidad)
     if not vencimiento:
         vencimiento = "2099-12-31"
 
+    # fecha y hora actual del servidor en formato ISO 8601 (YYYY-MM-DDTHH:MM:SS), sin microsegundos
     fecha = datetime.datetime.now().isoformat(timespec='seconds')
-    # datetime.now() → fecha y hora actual del servidor
-    # .isoformat() → convierte a string en formato ISO 8601: "2025-04-20T14:30:00"
-    # timespec='seconds' → corta los microsegundos (más legible en la BD)
 
-    conn = get_db()
+
+    conexion = get_db()
     try:
-        # PASO 1: Registrar el movimiento en el historial de entradas
-        conn.execute("""
+        # 1. Registrar el movimiento en el historial de entradas
+        conexion.execute("""
             INSERT INTO entradas
               (producto_id, proveedor_id, cantidad, fecha, vencimiento, usuario, motivo)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (producto_id, proveedor_id, cantidad, fecha, vencimiento, usuario, motivo))
+            VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (producto_id, proveedor_id, cantidad, fecha, vencimiento, usuario, motivo)
+        )
 
-        # PASO 2: Aumentar el stock del producto correspondiente
-        conn.execute(
+        # 2. Aumentar el stock del producto correspondiente
+        conexion.execute(
             "UPDATE productos SET stock = stock + ? WHERE id = ?",
             (cantidad, producto_id)
         )
-        # stock = stock + ? → suma la cantidad al stock actual (no lo reemplaza)
-        # WHERE id = ? → solo afecta al producto correcto
 
-        # IMPORTANTE: Estas dos operaciones deberían estar en una transacción explícita
-        # (BEGIN/ROLLBACK) para evitar que queden inconsistentes si algo falla entre medio.
-        # Mejora pendiente para producción.
+        # 3. Guardamos cambios
+        conexion.commit()
 
-        conn.commit()
-        return jsonify({"ok": True, "msg": "Entrada registrada."})
-
+        return jsonify({"ok": True,"msg": "Entrada registrada."})
     except Exception as e:
         # Capturamos cualquier error inesperado y lo devolvemos como mensaje
-        return jsonify({"ok": False, "msg": str(e)}), 500
-        # 500 = Internal Server Error (algo falló en el servidor)
-
+        return jsonify({"ok": False,"msg": str(e)}), 500
     finally:
-        conn.close()
+        #Cerrarmos la conexion, pase lo que pase
+        conexion.close()
 
 
-# --- AGREGAR SALIDA (VENTA / EGRESO DE STOCK) ---
+# POST - agregar Salida (venta/egreso de stock)
 @movimientos_bp.route("/add_output", methods=["POST"])
 def add_output():
 
-    producto_id = request.form.get("producto_id")
-    cantidad    = request.form.get("cantidad")
+    producto_id = request.form.get("producto_id","")
+    cantidad    = request.form.get("cantidad","")
     usuario     = request.form.get("usuario", "").strip()
     motivo      = request.form.get("motivo", "").strip()
 
@@ -92,68 +90,54 @@ def add_output():
     if cantidad <= 0:
         return jsonify({"ok": False, "msg": "Cantidad debe ser mayor a 0."}), 400
 
-    conn = get_db()
+    conexion = get_db()
     try:
         # PASO 1: Verificar que el producto existe y tiene stock suficiente
-        prod = conn.execute(
+        producto = conexion.execute(
             "SELECT stock, nombre FROM productos WHERE id = ?",
             (producto_id,)
-        ).fetchone()
-        # fetchone() → devuelve solo la primera fila, o None si no encuentra nada
+        ).fetchone() # fetchone() devuelve solo la primera fila, o None si no encuentra nada
 
-        if not prod:
+        if not producto:
             return jsonify({"ok": False, "msg": "Producto no encontrado."}), 404
-            # 404 = Not Found
 
-        stock_actual = prod['stock']
+
         # Accedemos por nombre de columna gracias a row_factory = sqlite3.Row
+        stockActual = producto['stock']
 
-        if cantidad > stock_actual:
+        if cantidad > stockActual:
             return jsonify({
                 "ok": False,
-                "msg": f"Stock insuficiente. Solo tienes {stock_actual} unidades de {prod['nombre']}."
+                "msg": f"Stock insuficiente. Solo tienes {stockActual} unidades de {producto['nombre']}."
             }), 400
-            # f"..." → f-string: permite insertar variables en el texto con {}
 
         # PASO 2: Registrar la salida en el historial
         fecha = datetime.datetime.now().isoformat(timespec='seconds')
-        conn.execute(
+        conexion.execute(
             "INSERT INTO salidas (producto_id, cantidad, fecha, usuario, motivo) VALUES (?, ?, ?, ?, ?)",
             (producto_id, cantidad, fecha, usuario, motivo)
         )
 
         # PASO 3: Restar la cantidad vendida del stock
-        conn.execute(
+        conexion.execute(
             "UPDATE productos SET stock = stock - ? WHERE id = ?",
             (cantidad, producto_id)
         )
 
-        conn.commit()
+        conexion.commit()
         return jsonify({"ok": True, "msg": "Venta/Salida registrada correctamente."})
 
     except Exception as e:
         return jsonify({"ok": False, "msg": str(e)}), 500
-
     finally:
-        conn.close()
+        conexion.close()
 
 
 # --- PÁGINA DE HISTORIAL DE MOVIMIENTOS ---
 @movimientos_bp.route("/historial")
 def historial():
-    conn = get_db()
+    conexion = get_db()
 
-    # UNION ALL combina los resultados de dos SELECT en una sola tabla
-    # Primera parte: todas las entradas (compras/ingresos)
-    # Segunda parte: todas las salidas (ventas/egresos)
-    # Las columnas deben coincidir en orden y tipo entre ambas partes
-    #
-    # JOIN une dos tablas usando una columna en común:
-    #   entradas e JOIN productos p ON e.producto_id = p.id
-    #   → para cada entrada, trae el nombre del producto desde la tabla productos
-    #   → así mostramos "Arroz" en vez de solo "3" (el id)
-    #
-    # ORDER BY fecha DESC → los más recientes aparecen primero
     query = """
         SELECT 'Entrada' AS tipo, e.fecha, p.nombre AS producto, e.cantidad, e.usuario, e.motivo
         FROM entradas e
@@ -168,8 +152,8 @@ def historial():
         ORDER BY fecha DESC
     """
 
-    movimientos = conn.execute(query).fetchall()
-    conn.close()
+    movimientos = conexion.execute(query).fetchall()
+    conexion.close()
 
-    return render_template("historial.html", movimientos=movimientos)
     # Pasa la lista de movimientos al template para que los muestre en una tabla
+    return render_template("historial.html", movimientos=movimientos)

@@ -6,12 +6,10 @@ from models.db import get_db
 proveedores_bp = Blueprint("proveedores", __name__)
 
 
-# --- AGREGAR PROVEEDOR ---
+# POST - Agregar Provedores
 @proveedores_bp.route("/add_provider", methods=["POST"])
 def add_provider():
 
-    # Leemos los campos del formulario
-    # Si no vienen, usamos string vacío como valor por defecto
     ruc       = request.form.get("ruc", "").strip()
     nombre    = request.form.get("nombre", "").strip()
     telefono  = request.form.get("telefono", "").strip()
@@ -21,15 +19,13 @@ def add_provider():
     if not ruc or not nombre:
         return jsonify({"ok": False, "msg": "RUC y Nombre son obligatorios."}), 400
 
-    conn = get_db()
+    conexion = get_db()
     try:
-        conn.execute(
+        conexion.execute(
             "INSERT INTO proveedores (ruc, nombre, telefono, direccion) VALUES (?, ?, ?, ?)",
             (ruc, nombre, telefono, direccion)
         )
-        # Los ? previenen inyección SQL (nunca concatenes datos del usuario en el SQL)
-
-        conn.commit()
+        conexion.commit()
         return jsonify({"ok": True, "msg": "Proveedor registrado."})
 
     except sqlite3.IntegrityError:
@@ -38,5 +34,5 @@ def add_provider():
         return jsonify({"ok": False, "msg": "El RUC ya existe."}), 400
 
     finally:
-        conn.close()
-        # Se ejecuta siempre (con o sin error) → garantiza que la conexión se cierre
+        # Se ejecuta siempre (con o sin error), garantiza que la conexion se cierre
+        conexion.close()

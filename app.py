@@ -42,9 +42,12 @@ def create_app():
     # Si no la hay, redirige al login (excepto para /login y /static)
     @app.before_request
     def require_login():
+        from flask import request
         rutas_publicas = {"auth.login", "static"}
+        # 👇 si pertenece al blueprint "api", no exigir login
+        if request.blueprint == "api":
+            return
         if not session.get("autenticado"):
-            from flask import request
             if request.endpoint not in rutas_publicas:
                 return redirect(url_for("auth.login"))
 

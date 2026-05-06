@@ -11,12 +11,31 @@ function openAddProduct() {
       <div class="row">
         <label>Categoría</label>
         <select id="p-cat">
-          <option value="Abarrotes">Abarrotes</option>
-          <option value="Bebidas">Bebidas</option>
-          <option value="Lácteos">Lácteos</option>
-          <option value="Limpieza">Limpieza</option>
-          <option value="Golosinas">Golosinas</option>
-          <option value="Otros">Otros</option>
+          <option value="Frutas y Verduras">Frutas y Verduras</option>
+          <option value="Carnes">Carnes</option>
+          <option value="Panadería">Panadería</option>
+          <option value="Congelados">Congelados</option>
+          <option value="Enlatados">Enlatados</option>
+          <option value="Granos y Cereales">Granos y Cereales</option>
+          <option value="Pastas">Pastas</option>
+          <option value="Aceites">Aceites</option>
+          <option value="Condimentos">Condimentos</option>
+          <option value="Botanas">Botanas</option>
+          <option value="Café">Café</option>
+          <option value="Té">Té</option>
+          <option value="Jugos">Jugos</option>
+          <option value="Agua">Agua</option>
+          <option value="Bebidas Energéticas">Bebidas Energéticas</option>
+          <option value="Cuidado Personal">Cuidado Personal</option>
+          <option value="Higiene Personal">Higiene Personal</option>
+          <option value="Productos para Bebé">Productos para Bebé</option>
+          <option value="Mascotas">Mascotas</option>
+          <option value="Papel y Desechables">Papel y Desechables</option>
+          <option value="Utensilios de Cocina">Utensilios de Cocina</option>
+          <option value="Papelería">Papelería</option>
+          <option value="Ferretería">Ferretería</option>
+          <option value="Ropa">Ropa</option>
+          <option value="Comida Preparada">Comida Preparada</option>
         </select>
       </div>
       <div class="row"><label>P. Compra (S/)</label><input id="p-pcompra" type="number" step="0.10" value="0.00"></div>
@@ -63,3 +82,22 @@ async function guardarProducto() {
     (msg) => showToast(msg, "error"),
   );
 }
+
+// Funcion para eliminar un producto
+// usamos "document.querySelectorAll('.btn-delete').forEach(boton => {" porque tenemos varios botones btn-delete
+// ya que usamos eso en un for, por ende exiten botones cuando el codigo es  "a1" "a2" "a3"...
+// y eso devuelve una lista [btn1, btn2, btn3]
+document.querySelectorAll('.btn-delete').forEach(boton => {
+  // Para cada btn, escucha cuando lo hagan click
+  boton.addEventListener('click', function () {
+    const codigoEliminar = this.dataset.id;
+    fetch(`/producto/${codigoEliminar}`, {
+      method: "DELETE"
+    })
+    .then(response => { //esto espera a que la termine con exito el fetch
+      if (response.ok) {
+        location.reload() //recarga la pagina
+      }
+    })
+  })
+});

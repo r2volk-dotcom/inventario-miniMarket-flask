@@ -18,6 +18,27 @@ def index():
     # productos=productos → pasa la lista al HTML para que pueda mostrarla con Jinja2
     return render_template("index.html", productos=productos)
 
+# DELETE - eliminar producto
+@productos_bp.route("/producto/<codigo>", methods=["DELETE"])
+def eliminar_producto(codigo):
+
+    conexion = get_db()#abrimos db
+    cursor = conexion.execute("DELETE FROM productos WHERE codigo = ?",(codigo,))
+    conexion.commit() # cerramos db
+
+    # aca aplicamos la comprobacion, rowcount te dice cuantas filas afecto la operacion sql
+    # en este caso si afecto 0 filas es porque no existia ese codigo..
+    if cursor.rowcount == 0:
+        return jsonify({
+            "ok": False,
+            "msg": "Código no existe"
+        }), 404
+
+    return jsonify({
+        "ok": True,
+        "msg": f"Producto {codigo} eliminado"
+    }), 200
+
 
 # POST - agregar producto
 @productos_bp.route("/add_product", methods=["POST"])

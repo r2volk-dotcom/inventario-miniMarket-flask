@@ -100,3 +100,35 @@
   font-weight: 700;
   font-size: 36px;
 }
+
+/*DISENO DEL TOGGLE*/
+.toggle-container {
+  display: inline-flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 2px;
+  background-color: #f3f4f6;
+  gap: 1px;
+}
+
+.toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 4px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+  background-color: #111827;
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-btn:not(.active):hover {
+  color: #374151;
+}

@@ -79,17 +79,16 @@ def api_dashboard():
     ).fetchone()[0]
 
     # Datos para el gráfico de barras: devuelve (categoria, cantidad)
-    chart_query = conn.execute(
+    query_grafico_categoria = conn.execute(
         "SELECT categoria, COUNT(*) AS cantidad FROM productos GROUP BY categoria"
+    ).fetchall()
+    query_grafico_productos = conn.execute(
+        "SELECT nombre, stock FROM productos ORDER BY precio_venta DESC LIMIT 100;"
     ).fetchall()
 
 
     # Cierra la conexion de la bd
     conn.close()
-
-    # Separamos etiquetas y valores en dos listas paralelas para el gráfico
-    labels = [row['categoria'] for row in chart_query]  # ["Abarrotes", "Bebidas", ...]
-    values = [row['cantidad']  for row in chart_query]  # [10, 5, ...]
 
     #jsonify lo convierte en json..
     # El frontend lee este JSON con fetch("/api/dashboard") y lo usa para actualizar el dashboard
@@ -98,6 +97,12 @@ def api_dashboard():
         "alertas":      alertas_stock,
         "vencimiento":  por_vencer,
         "valor":        valor_total,
-        "chart_labels": labels,
-        "chart_values": values
+        "categoria": {
+                "labels": [row['categoria'] for row in query_grafico_categoria], # ["Abarrotes", "Bebidas", ...]
+                "values": [row['cantidad'] for row in query_grafico_categoria] # [10, 5, ...]
+            },
+        "productos": {
+            "labels": [row['nombre'] for row in query_grafico_productos],
+            "values": [row['stock'] for row in query_grafico_productos]
+        }
     })

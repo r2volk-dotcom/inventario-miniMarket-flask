@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   //carga el dashboard
-  loadDashboard();
+  loadDashboard2();
 });
 
 

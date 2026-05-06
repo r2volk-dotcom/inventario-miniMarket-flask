@@ -8,11 +8,16 @@
 <div class="dashboard-top">
 
   <!-- GRÁFICO DE BARRAS REDONDEADO -->
+
   <div class="card chart-card">
     <div class="card-header">
       <div>
         <h3 class="card-title">Distribución por Categoría</h3>
         <p class="card-subtitle">Productos agrupados por categoría</p>
+      </div>
+      <div class="toggle-container">
+        <button class="toggle-btn active" data-grafico="categoria">Categorías</button>
+        <button class="toggle-btn" data-grafico="productos">Productos</button>
       </div>
     </div>
     <div class="chart-container">
@@ -127,6 +132,19 @@
             </span>
           </td>
           <td class="td-desc">{{ p['descripcion'] or '—' }}</td>
+          <td>
+              <!--Data-id guarda el id actual, por ejemplo data-id="5" -->
+            <button class="btn-delete" data-id="{{ p['codigo'] }}">
+              <svg width="17" height="17" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/>
+                <path d="M14 11v6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+            </button>
+          </td>
         </tr>
         {% endfor %}
       </tbody>

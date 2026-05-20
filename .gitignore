@@ -1,21 +1,20 @@
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 
-# Entornos virtuales
+# Entorno virtual
 venv/
-.venv/
 env/
-
-# Variables de entorno
 .env
-.env.*
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverrideFile
 
-# IDEs
+# Editores
 .vscode/
 .idea/
+*.swp

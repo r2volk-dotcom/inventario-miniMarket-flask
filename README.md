@@ -13,10 +13,38 @@ Una solución web moderna y profesional diseñada para el control y la administr
 
 El sistema cuenta con una interfaz renovada basada en la familia tipográfica **Geist**, micro-animaciones fluidas, un panel de login dedicado y una barra lateral de navegación estructurada.
 
-*   **Pantalla de Login:** Acceso restringido mediante cookies firmadas de sesión para personal autorizado.
-*   **Dashboard e Indicadores:** Tarjetas KPI que calculan automáticamente el valor total del almacén, alertas de stock mínimo y productos por vencer en los próximos 30 días.
-*   **Gráficos Interactivos:** Panel dinámico conmutador mediante **Chart.js** para visualizar la distribución de categorías o el stock de productos ordenados por precio.
-*   **Formularios Modales:** Registro rápido de productos, proveedores, entradas y salidas de stock sin recargas de página mediante JavaScript asíncrono (`fetch` API).
+### 🔐 Inicio de Sesión
+Acceso restringido mediante cookies firmadas de sesión para personal autorizado.
+![Login](imgs/Login.png)
+
+### 📊 Panel de Control (Dashboard)
+Tarjetas KPI que calculan automáticamente el valor total del almacén, alertas de stock mínimo y productos por vencer en los próximos 30 días.
+![Dashboard Principal 1](imgs/DashboardPrincipal.png)
+![Dashboard Principal 2](imgs/DashboardPrincipal2.png)
+![Dashboard Principal 3](imgs/DashboardPrincipal3.png)
+
+### 📋 Gestión de Catálogo y Tablas
+Visualización de productos con filtros de búsqueda instantánea en caliente por DOM.
+![Tabla de Productos](imgs/TablaProductos.png)
+
+### ➕ Formularios Modales y Operaciones
+Registro rápido de productos, proveedores, entradas y salidas de stock sin recargas de página mediante JavaScript asíncrono (`fetch` API).
+
+*   **Nuevo Producto:**
+    ![Nuevo Producto](imgs/NuevoProducto.png)
+
+*   **Nuevo Proveedor:**
+    ![Nuevo Proveedor](imgs/NuevoProveedor.png)
+
+*   **Registrar Entrada de Stock:**
+    ![Registrar Entrada](imgs/RegistrarEntrada.png)
+
+*   **Registrar Salida de Stock:**
+    ![Registrar Salida](imgs/RegistrarSalida.png)
+
+### 📜 Historial de Cambios (Kardex)
+Registro unificado de todos los movimientos (entradas y salidas) con buscador en tiempo real.
+![Historial de Cambios](imgs/HistorialCambios.png)
 
 ---
 
@@ -50,8 +78,8 @@ Sigue estos sencillos pasos para levantar el entorno de desarrollo localmente:
 
 1.  **Clona el repositorio:**
     ```bash
-    git clone https://github.com/rlaur205/inventario-colegio-flusk.git
-    cd inventario-colegio-flusk
+    git clone https://github.com/rlaur205/gestion-inventario-flask.git
+    cd gestion-inventario-flask
     ```
 
 2.  **Instala Flask:**

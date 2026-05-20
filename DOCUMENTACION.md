@@ -2,7 +2,7 @@
 
 **Proyecto:** Sistema de Gestión de Inventario — Minimarket "Don José"  
 **Tecnología Principal:** Python, Flask, SQLite, HTML5, CSS3 (Modular) y JavaScript (ES6)  
-**Autor/Repositorio:** [rlaur205/inventario-colegio-flusk](https://github.com/rlaur205/inventario-colegio-flusk)
+**Autor/Repositorio:** [rlaur205/gestion-inventario-flask](https://github.com/rlaur205/gestion-inventario-flask)
 
 ---
 
@@ -26,6 +26,8 @@ gestion-minimarket/
 ├── reset_db.py          # Script de utilidad para inicializar o reiniciar las tablas en SQLite
 ├── inventario.db        # Archivo físico de la base de datos SQLite (se genera localmente)
 │
+├── imgs/                # Capturas de pantalla e imágenes ilustrativas del sistema
+│
 ├── models/              # Modelos y utilidades de la base de datos
 │   └── db.py            # Función get_db() para gestionar la conexión SQLite
 │
@@ -39,16 +41,14 @@ gestion-minimarket/
 │
 ├── static/              # Recursos estáticos servidos directamente al cliente
 │   ├── css/             # Hojas de estilo estructuradas por módulos
-│   │   ├── reset.css      # Limpieza y normalización de estilos del navegador
-│   │   ├── tokens.css     # Variables de diseño (Colores HSL, fuentes, sombras y transiciones)
-│   │   ├── base.css       # Estilos globales del documento y elementos básicos
+│   │   ├── base.css       # Estilos globales, variables CSS (Tokens) y reset base
 │   │   ├── layout.css     # Estructura grid y posicionamiento de paneles principales
 │   │   ├── sidebar.css    # Estilos de la barra lateral de navegación colapsable
 │   │   ├── components.css # Estilos de botones, selectores, modales, toasts y badges
 │   │   ├── dashboard.css  # Estilos para las tarjetas KPI y contenedores de gráficos
 │   │   ├── tables.css     # Formato de las tablas de datos e historial
 │   │   ├── login.css      # Estilos premium del portal de inicio de sesión
-│   │   └── main.css       # Archivo de importaciones generales
+│   │   └── main.css       # Archivo de importaciones generales (entrypoint CSS)
 │   │
 │   └── js/              # Código JavaScript para interactividad en el cliente
 │       ├── main.js        # Configura listeners globales y el buscador de productos
@@ -168,6 +168,8 @@ Registra la salida física de mercancía por concepto de ventas, merma o consumo
 
 El sistema implementa un esquema de seguridad simple mediante sesiones cifradas de Flask para restringir el acceso a usuarios no autenticados.
 
+![Pantalla de Login](imgs/Login.png)
+
 *   **Credenciales por Defecto:**
     *   **Usuario:** `admin`
     *   **Contraseña:** `12345`
@@ -251,6 +253,21 @@ El sistema utiliza ventanas modales dinámicas inyectadas directamente en un ele
     ]).then(([products, providers]) => { ... });
     ```
 
+#### Formularios Modales del Sistema
+A continuación se muestran las capturas de las interfaces modales dinámicas implementadas:
+
+*   **Nuevo Producto:** Formulario dinámico para registrar productos en el catálogo.
+    ![Nuevo Producto](imgs/NuevoProducto.png)
+
+*   **Nuevo Proveedor:** Formulario para registrar datos de contacto del proveedor.
+    ![Nuevo Proveedor](imgs/NuevoProveedor.png)
+
+*   **Registrar Entrada de Stock:** Modal que carga asíncronamente productos y proveedores en paralelo mediante `Promise.all`.
+    ![Registrar Entrada](imgs/RegistrarEntrada.png)
+
+*   **Registrar Salida de Stock:** Formulario para registrar salidas con validación de stock disponible.
+    ![Registrar Salida](imgs/RegistrarSalida.png)
+
 ### 6.2 Comunicación Asíncrona (`postForm()`)
 El envío de los formularios se realiza asíncronamente mediante `fetch` con la función `postForm(url, data, onOk, onError)`:
 *   Serializa los objetos de JavaScript como `URLSearchParams` para que Flask los reciba en el diccionario tradicional `request.form`.
@@ -265,9 +282,27 @@ El script `static/js/dashboard.js` se encarga de consultar `/api/dashboard` de f
     *   *Stock:* Cantidad física disponible de los productos con mayor precio de venta.
 *   **Configuración Visual del Gráfico:** Utiliza barras con esquinas redondeadas (`borderRadius: 10`), paleta de colores minimalista (`#18181b` con hover en `#000000`) y fuentes cargadas desde Google Fonts (`Geist`).
 
-### 6.4 Buscador en Caliente (Búsqueda por DOM)
+#### Vistas del Dashboard Principal
+El Dashboard cuenta con múltiples vistas interactivas configurables en caliente:
+
+*   **Vista de Métricas y Categorías:**
+    ![Dashboard Principal 1](imgs/DashboardPrincipal.png)
+*   **Vista de Stock por Producto:**
+    ![Dashboard Principal 2](imgs/DashboardPrincipal2.png)
+*   **Detalle del Panel Lateral e Indicadores de Alerta:**
+    ![Dashboard Principal 3](imgs/DashboardPrincipal3.png)
+
+### 6.4 Buscador en Caliente (Búsqueda por DOM) y Tablas
 Para optimizar las consultas a la base de datos, las búsquedas en la tabla de inventario (`index.html`) e historial (`historial.html`) se realizan en el cliente (DOM) mediante la evaluación de eventos `input` en tiempo real. 
 Al escribir en la caja de texto, se evalúa si cada fila `<tr>` contiene la cadena de búsqueda (pasando todo a minúsculas) y se ocultan los elementos no coincidentes utilizando `display = "none"`.
+
+#### Interfaz de Tablas del Sistema
+
+*   **Tabla de Catálogo de Productos:**
+    ![Tabla de Productos](imgs/TablaProductos.png)
+
+*   **Kardex / Historial de Cambios:**
+    ![Historial de Cambios](imgs/HistorialCambios.png)
 
 ---
 
@@ -281,8 +316,8 @@ Al escribir en la caja de texto, se evalúa si cada fila `<tr>` contiene la cade
 ### Guía de Inicio Rápido
 1.  **Preparar el Repositorio:**
     ```bash
-    git clone https://github.com/rlaur205/inventario-colegio-flusk.git
-    cd inventario-colegio-flusk
+    git clone https://github.com/rlaur205/gestion-inventario-flask.git
+    cd gestion-inventario-flask
     ```
 2.  **Instalar Flask:**
     ```bash
@@ -298,7 +333,7 @@ Al escribir en la caja de texto, se evalúa si cada fila `<tr>` contiene la cade
     python app.py
     ```
 5.  **Pruebas Locales:**
-    Navegar a `http://127.0.0.1:5000` en cualquier navegador web.
+    Navegar a `http://127.0.0.1:5000` en any navegador web.
 
 ---
 
